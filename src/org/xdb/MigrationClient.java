@@ -18,7 +18,8 @@ public class MigrationClient {
 		try {
 			// connect to local DB
 			Class.forName(Config.JDBC_DRIVER);
-			String jdbcUrl = "jdbc:mysql://"+m_url+"/tpch_s01?useSSL=false";
+			String jdbcUrl = "jdbc:mysql://" + m_url + "/" + Config.DB_NAME
+					+ "?useSSL=false";
 			Connection conn = DriverManager.getConnection(jdbcUrl,
 					Config.DB_USER, Config.DB_PASSWD);
 
@@ -53,11 +54,11 @@ public class MigrationClient {
 			String url = URL_TEMPLATE.replaceAll("<H>", m_url);
 			String msg = table + "," + part + "," + url;
 
-			System.out.println("NOTIFY: "+msg);
-			
+			System.out.println("NOTIFY: " + msg);
+
 			out.write(msg);
 			out.flush();
-			
+
 			sock.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -69,8 +70,8 @@ public class MigrationClient {
 		String copyQuery = COPY_QUERY.replaceAll("<T>", table);
 		copyQuery = copyQuery.replaceAll("<P>", part);
 		try {
-			System.out.println("COPY: "+copyQuery);
-			
+			System.out.println("COPY: " + copyQuery);
+
 			Statement stmt = conn.createStatement();
 			stmt.execute(copyQuery);
 			System.out.println(copyQuery);
@@ -83,16 +84,21 @@ public class MigrationClient {
 	private String m_url;
 
 	private static String COPY_QUERY = "INSERT INTO <T>_<P> SELECT * FROM <T>_<P>_REMOTE";
-	private static String URL_TEMPLATE = "jdbc:mysql://<H>/tpch_s01?useSSL=false";
+	private static String URL_TEMPLATE = "jdbc:mysql://<H>/" + Config.DB_NAME
+			+ "?useSSL=false";
 
 	public static void main(String[] args) {
-		if (args.length != 1) {
-			System.out.println("Usage: MigrationClient <url>");
+		if (args.length != 2) {
+			System.out.println("Usage: MigrationClient <dbname> <hostname>");
 			return;
 		}
-		
+
+		// change config
+		Config.DB_NAME = args[0];
+		String hostname = args[1];
+
 		System.out.println("Migration started ...");
-		MigrationClient client = new MigrationClient(args[0]);
+		MigrationClient client = new MigrationClient(hostname);
 		client.run();
 		System.out.println("Finished!");
 	}

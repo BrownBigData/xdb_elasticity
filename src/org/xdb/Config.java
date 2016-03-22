@@ -6,6 +6,7 @@ public class Config {
 	public static final String CATALOG_FILE = "./conf/catalog.conf";
 	public static final String DB_USER = "xroot";
 	public static final String DB_PASSWD = "xroot";
+	public static String DB_NAME = "tpch_s01";
 	public static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 	public static final int RAND_SEED = 0;
 	public static final int TIMER_INTERVAL = 1000*60;

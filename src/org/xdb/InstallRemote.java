@@ -17,7 +17,7 @@ public class InstallRemote {
 		try {
 			// connect to local DB
 			Class.forName(Config.JDBC_DRIVER);
-			String jdbcUrl = "jdbc:mysql://"+m_url+"/tpch_s01?useSSL=false";
+			String jdbcUrl = "jdbc:mysql://"+m_url+"/"+Config.DB_NAME+"?useSSL=false";
 			Connection conn = DriverManager.getConnection(jdbcUrl,
 					Config.DB_USER, Config.DB_PASSWD);
 
@@ -47,6 +47,7 @@ public class InstallRemote {
 				
 				ddl = ddl.replaceAll("<P>", part);
 				ddl = ddl.replaceAll("<H>", host);
+				ddl = ddl.replaceAll("<D>", Config.DB_NAME);
 				
 				Statement stmt = conn.createStatement();
 				System.out.println("DDL: "+ddl);
@@ -67,12 +68,16 @@ public class InstallRemote {
 	private String m_url;
 	
 	public static void main(String[] args) {
-		if (args.length != 1) {
-			System.out.println("Usage: InstallRemote <url>");
+		if (args.length != 2) {
+			System.out.println("Usage: InstallRemote <dbname> <hostname>");
 			return;
 		}
+		
+		Config.DB_NAME = args[0];
+		String hostname = args[1];
+		
 		System.out.println("Schema installation started ...");
-		InstallRemote client = new InstallRemote(args[0]);
+		InstallRemote client = new InstallRemote(hostname);
 		client.run();
 		System.out.println("Finished!");
 	}

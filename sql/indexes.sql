@@ -1,8 +1,8 @@
-ALTER TABLE `tpch_s01`.`customer` 
+ALTER TABLE CUSTOMER
 ADD INDEX `c_mktsegment_idx` USING HASH (`C_MKTSEGMENT` ASC) ;
 
-ALTER TABLE `tpch_s01`.`orders` 
+ALTER TABLE ORDERS 
 ADD INDEX `o_orderdate_idx` USING BTREE (`O_ORDERDATE` ASC) ;
 
-ALTER TABLE `tpch_s01`.`lineitem` 
+ALTER TABLE LINEITEM
 ADD INDEX `l_shipdate_idx` USING BTREE (`L_SHIPDATE` ASC) ;
