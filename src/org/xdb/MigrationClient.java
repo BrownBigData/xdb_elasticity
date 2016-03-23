@@ -10,18 +10,17 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class MigrationClient {
-	public MigrationClient(String url, String coord) {
-		m_url = url;
+	public MigrationClient(String host, String coord) {
 		m_coord = coord;
+		m_conn = "jdbc:mysql://"+host+"/" + Config.DB_NAME
+				+ "?useSSL=false";
 	}
 
 	public void run() {
 		try {
 			// connect to local DB
 			Class.forName(Config.JDBC_DRIVER);
-			String jdbcUrl = "jdbc:mysql://" + m_url + "/" + Config.DB_NAME
-					+ "?useSSL=false";
-			Connection conn = DriverManager.getConnection(jdbcUrl,
+			Connection conn = DriverManager.getConnection(m_conn,
 					Config.DB_USER, Config.DB_PASSWD);
 
 			// apply migration file
@@ -52,8 +51,7 @@ public class MigrationClient {
 					Config.COORDINATOR_PORT);
 			PrintWriter out = new PrintWriter(sock.getOutputStream(), true);
 
-			String url = URL_TEMPLATE.replaceAll("<H>", m_url);
-			String msg = table + "," + part + "," + url;
+			String msg = table + "," + part + "," + m_conn;
 
 			System.out.println("NOTIFY: " + msg);
 
@@ -82,13 +80,11 @@ public class MigrationClient {
 		}
 	}
 
-	private String m_url;
 	private String m_coord;
+	private String m_conn;
 
 	private static String COPY_QUERY = "INSERT INTO <T>_<P> SELECT * FROM <T>_<P>_remote";
-	private static String URL_TEMPLATE = "jdbc:mysql://<H>/" + Config.DB_NAME
-			+ "?useSSL=false";
-
+	
 	public static void main(String[] args) {
 		if (args.length != 3) {
 			System.out.println("Usage: MigrationClient <dbname> <hostname> <coord>");
