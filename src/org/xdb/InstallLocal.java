@@ -71,7 +71,7 @@ public class InstallLocal {
 				System.out.println("CREATE ("+host+"): "+createDDL);
 				stmt.execute(createDDL);
 				
-				String loadDDL = createTableDDLs.get(table);
+				String loadDDL = loadTableDDLs.get(table);
 				loadDDL = loadDDL.replaceAll("<P>", part);
 				loadDDL = loadDDL.replaceAll("<L>", Config.LOAD_PATH);
 				stmt = conn.createStatement();
