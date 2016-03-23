@@ -2,6 +2,7 @@ package org.xdb;
 
 public class Config {
 	public static final String REMOTE_FILE = "./conf/remote.conf";
+	public static final String LOCAL_FILE = "./conf/local.conf";
 	public static final String MIGRATE_FILE = "./conf/migration.conf";
 	public static final String CATALOG_FILE = "./conf/catalog.conf";
 	public static final String DB_USER = "xroot";

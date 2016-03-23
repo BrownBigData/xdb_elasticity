@@ -95,6 +95,9 @@ public class QueryCoordinator extends Thread {
 				String table = catalogEntry[0];
 				String part = catalogEntry[1];
 				String url = "jdbc:mysql://"+catalogEntry[2]+"/"+Config.DB_NAME+"?useSSL=false";
+				
+				System.out.println(url);
+				
 				Connection conn = DriverManager.getConnection(url,
 						Config.DB_USER, Config.DB_PASSWD);
 				updateCatalog(table, part, conn);
