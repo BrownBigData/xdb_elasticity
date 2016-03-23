@@ -10,8 +10,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class MigrationClient {
-	public MigrationClient(String url) {
+	public MigrationClient(String url, String coord) {
 		m_url = url;
+		m_coord = coord;
 	}
 
 	public void run() {
@@ -47,7 +48,7 @@ public class MigrationClient {
 
 	private void notifyCoordinator(String table, String part) {
 		try {
-			Socket sock = new Socket(Config.COORDINATOR_URL,
+			Socket sock = new Socket(m_coord,
 					Config.COORDINATOR_PORT);
 			PrintWriter out = new PrintWriter(sock.getOutputStream(), true);
 
@@ -82,23 +83,25 @@ public class MigrationClient {
 	}
 
 	private String m_url;
+	private String m_coord;
 
 	private static String COPY_QUERY = "INSERT INTO <T>_<P> SELECT * FROM <T>_<P>_remote";
 	private static String URL_TEMPLATE = "jdbc:mysql://<H>/" + Config.DB_NAME
 			+ "?useSSL=false";
 
 	public static void main(String[] args) {
-		if (args.length != 2) {
-			System.out.println("Usage: MigrationClient <dbname> <hostname>");
+		if (args.length != 3) {
+			System.out.println("Usage: MigrationClient <dbname> <hostname> <coord>");
 			return;
 		}
 
 		// change config
 		Config.DB_NAME = args[0];
 		String hostname = args[1];
+		String coord = args[2];
 
 		System.out.println("Migration started ...");
-		MigrationClient client = new MigrationClient(hostname);
+		MigrationClient client = new MigrationClient(hostname, coord);
 		client.run();
 		System.out.println("Finished!");
 	}

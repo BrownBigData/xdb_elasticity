@@ -1,1 +1,1 @@
-java -cp ./bin/:./lib/xdb.jar:./lib/mysql-connector-java-5.1.38-bin.jar org.xdb.MigrationClient $1 $2
+java -cp ./bin/:./lib/xdb.jar:./lib/mysql-connector-java-5.1.38-bin.jar org.xdb.MigrationClient $1 $2 $3
