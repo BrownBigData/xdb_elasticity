@@ -9,7 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InstallLocal {
-	public InstallLocal() {
+	public InstallLocal(String path) {
+		m_path = path;
 		m_conns = new HashMap<String, Connection>();
 	}
 
@@ -71,7 +72,7 @@ public class InstallLocal {
 				
 				String loadDDL = loadTableDDLs.get(table);
 				loadDDL = loadDDL.replaceAll("<P>", part);
-				loadDDL = loadDDL.replaceAll("<L>", Config.LOAD_PATH);
+				loadDDL = loadDDL.replaceAll("<L>", m_path);
 				stmt = conn.createStatement();
 				System.out.println("LOAD (" + host + "): " + loadDDL);
 				stmt.execute(loadDDL);
@@ -92,17 +93,19 @@ public class InstallLocal {
 	}
 
 	private Map<String, Connection> m_conns;
+	private String m_path;
 
 	public static void main(String[] args) {
-		if (args.length != 1) {
-			System.out.println("Usage: InstallLocal <dbname>");
+		if (args.length != 2) {
+			System.out.println("Usage: InstallLocal <dbname> <path>");
 			return;
 		}
 
 		Config.DB_NAME = args[0];
-
+		String path = args[1];
+		
 		System.out.println("Schema installation started ...");
-		InstallLocal client = new InstallLocal();
+		InstallLocal client = new InstallLocal(path);
 		client.run();
 		System.out.println("Finished!");
 	}
