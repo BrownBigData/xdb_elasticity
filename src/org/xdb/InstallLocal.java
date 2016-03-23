@@ -95,7 +95,7 @@ public class InstallLocal {
 	private Map<String, Connection> m_conns;
 	
 	public static void main(String[] args) {
-		if (args.length != 2) {
+		if (args.length != 1) {
 			System.out.println("Usage: InstallLocal <dbname>");
 			return;
 		}
