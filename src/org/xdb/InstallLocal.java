@@ -9,20 +9,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InstallLocal {
-	public InstallLocal(String url){
-		m_url = url;
+	public InstallLocal(){
+		m_conns = new HashMap<String,Connection>();
 	}
 	
 	public void run(){
 		try {
-			// connect to local DB
-			Class.forName(Config.JDBC_DRIVER);
-			String jdbcUrl = "jdbc:mysql://"+m_url+"/"+Config.DB_NAME+"?useSSL=false";
-			Connection conn = DriverManager.getConnection(jdbcUrl,
-					Config.DB_USER, Config.DB_PASSWD);
-
 			// read local file
-			Map<String, String> remoteTableDDLs = new HashMap<String, String>();
+			Map<String, String> createTableDDLs = new HashMap<String, String>();
 			BufferedReader reader = new BufferedReader(new FileReader(
 					Config.LOCAL_FILE));
 			String line = null;
@@ -30,10 +24,24 @@ public class InstallLocal {
 				String[] catalogEntry = line.split(";");
 				String table = catalogEntry[0];
 				String ddl = catalogEntry[1];
-				remoteTableDDLs.put(table, ddl);
+				createTableDDLs.put(table, ddl);
 			}
 			reader.close();
 
+			//read load file
+			Map<String, String> loadTableDDLs = new HashMap<String, String>();
+			reader = new BufferedReader(new FileReader(
+					Config.LOAD_FILE));
+			line = null;
+			while ((line = reader.readLine()) != null) {
+				String[] catalogEntry = line.split(";");
+				String table = catalogEntry[0];
+				String ddl = catalogEntry[1];
+				loadTableDDLs.put(table, ddl);
+			}
+			reader.close();
+			
+			
 			//create remote schema
 			reader = new BufferedReader(new FileReader(
 					Config.CATALOG_FILE));
@@ -42,20 +50,41 @@ public class InstallLocal {
 				String[] catalogEntry = line.split(",");
 				String table = catalogEntry[0];
 				String part = catalogEntry[1];
-				String ddl = remoteTableDDLs.get(table);
+				String host = catalogEntry[2];
 				
-				ddl = ddl.replaceAll("<P>", part);
-				ddl = ddl.replaceAll("<D>", Config.DB_NAME);
+				Connection conn = null;
+				if(!m_conns.containsKey(host)){
+					// connect to local DB
+					Class.forName(Config.JDBC_DRIVER);
+					String jdbcUrl = "jdbc:mysql://"+host+"/"+Config.DB_NAME+"?useSSL=false";
+					conn = DriverManager.getConnection(jdbcUrl,
+							Config.DB_USER, Config.DB_PASSWD);
+
+				}
+				else{
+					conn = m_conns.get(host);
+				}
 				
+				String createDDL = createTableDDLs.get(table);
+				createDDL = createDDL.replaceAll("<P>", part);
 				Statement stmt = conn.createStatement();
-				System.out.println("DDL: "+ddl);
-				stmt.execute(ddl);
+				System.out.println("CREATE ("+host+"): "+createDDL);
+				stmt.execute(createDDL);
+				
+				String loadDDL = createTableDDLs.get(table);
+				loadDDL = loadDDL.replaceAll("<P>", part);
+				loadDDL = loadDDL.replaceAll("<L>", Config.LOAD_PATH);
+				stmt = conn.createStatement();
+				System.out.println("LOAD ("+host+"): "+createDDL);
+				stmt.execute(createDDL);
 			}
+			
 			reader.close();
 			
-			
-			// close DB conn
-			conn.close();
+			//clean up
+			for(Connection conn: m_conns.values()){
+				conn.close();
+			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -63,19 +92,18 @@ public class InstallLocal {
 		}
 	}
 	
-	private String m_url;
+	private Map<String, Connection> m_conns;
 	
 	public static void main(String[] args) {
 		if (args.length != 2) {
-			System.out.println("Usage: InstallLocal <dbname> <hostname>");
+			System.out.println("Usage: InstallLocal <dbname>");
 			return;
 		}
 		
 		Config.DB_NAME = args[0];
-		String hostname = args[1];
 		
 		System.out.println("Schema installation started ...");
-		InstallLocal client = new InstallLocal(hostname);
+		InstallLocal client = new InstallLocal();
 		client.run();
 		System.out.println("Finished!");
 	}
