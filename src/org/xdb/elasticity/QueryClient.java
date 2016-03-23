@@ -4,7 +4,7 @@ import java.util.Random;
 import java.util.Vector;
 
 import org.xdb.Config;
-import org.xdb.elasticity.queries.TPCHQuery1;
+//import org.xdb.elasticity.queries.TPCHQuery1;
 import org.xdb.elasticity.queries.TPCHQuery3;
 
 public class QueryClient extends Thread {
@@ -12,7 +12,7 @@ public class QueryClient extends Thread {
 	public QueryClient(QueryCoordinator coord) {
 		m_coord = coord;
 		m_queries = new Vector<DistributedQuery>();
-		m_queries.add(new TPCHQuery1());
+		//m_queries.add(new TPCHQuery1());
 		m_queries.add(new TPCHQuery3());
 		m_rand = new Random();
 		m_rand.setSeed(Config.RAND_SEED);
