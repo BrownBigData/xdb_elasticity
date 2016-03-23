@@ -75,8 +75,8 @@ public class InstallLocal {
 				loadDDL = loadDDL.replaceAll("<P>", part);
 				loadDDL = loadDDL.replaceAll("<L>", Config.LOAD_PATH);
 				stmt = conn.createStatement();
-				System.out.println("LOAD ("+host+"): "+createDDL);
-				stmt.execute(createDDL);
+				System.out.println("LOAD ("+host+"): "+loadDDL);
+				stmt.execute(loadDDL);
 			}
 			
 			reader.close();
