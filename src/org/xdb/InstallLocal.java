@@ -9,9 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InstallLocal {
-	public InstallLocal(boolean load) {
+	public InstallLocal() {
 		m_conns = new HashMap<String, Connection>();
-		m_load = load;
 	}
 
 	public void run() {
@@ -68,15 +67,15 @@ public class InstallLocal {
 				Statement stmt = conn.createStatement();
 				System.out.println("CREATE (" + host + "): " + createDDL);
 				stmt.execute(createDDL);
-
-				if (m_load) {
-					String loadDDL = loadTableDDLs.get(table);
-					loadDDL = loadDDL.replaceAll("<P>", part);
-					loadDDL = loadDDL.replaceAll("<L>", Config.LOAD_PATH);
-					stmt = conn.createStatement();
-					System.out.println("LOAD (" + host + "): " + loadDDL);
-					stmt.execute(loadDDL);
-				}
+				stmt.close();
+				
+				String loadDDL = loadTableDDLs.get(table);
+				loadDDL = loadDDL.replaceAll("<P>", part);
+				loadDDL = loadDDL.replaceAll("<L>", Config.LOAD_PATH);
+				stmt = conn.createStatement();
+				System.out.println("LOAD (" + host + "): " + loadDDL);
+				stmt.execute(loadDDL);
+				stmt.close();
 			}
 
 			reader.close();
@@ -93,19 +92,17 @@ public class InstallLocal {
 	}
 
 	private Map<String, Connection> m_conns;
-	private boolean m_load;
 
 	public static void main(String[] args) {
-		if (args.length != 2) {
-			System.out.println("Usage: InstallLocal <dbname> <load>");
+		if (args.length != 1) {
+			System.out.println("Usage: InstallLocal <dbname>");
 			return;
 		}
 
 		Config.DB_NAME = args[0];
-		boolean load = Boolean.parseBoolean(args[1]);
 
 		System.out.println("Schema installation started ...");
-		InstallLocal client = new InstallLocal(load);
+		InstallLocal client = new InstallLocal();
 		client.run();
 		System.out.println("Finished!");
 	}
