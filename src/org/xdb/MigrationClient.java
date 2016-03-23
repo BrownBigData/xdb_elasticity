@@ -83,7 +83,7 @@ public class MigrationClient {
 
 	private String m_url;
 
-	private static String COPY_QUERY = "INSERT INTO <T>_<P> SELECT * FROM <T>_<P>_REMOTE";
+	private static String COPY_QUERY = "INSERT INTO <T>_<P> SELECT * FROM <T>_<P>_remote";
 	private static String URL_TEMPLATE = "jdbc:mysql://<H>/" + Config.DB_NAME
 			+ "?useSSL=false";
 
