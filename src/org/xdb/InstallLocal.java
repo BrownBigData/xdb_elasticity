@@ -69,14 +69,16 @@ public class InstallLocal {
 				System.out.println("CREATE (" + host + "): " + createDDL);
 				stmt.execute(createDDL);
 				stmt.close();
-				
-				String loadDDL = loadTableDDLs.get(table);
-				loadDDL = loadDDL.replaceAll("<P>", part);
-				loadDDL = loadDDL.replaceAll("<L>", m_path);
-				stmt = conn.createStatement();
-				System.out.println("LOAD (" + host + "): " + loadDDL);
-				stmt.execute(loadDDL);
-				stmt.close();
+
+				if (loadTableDDLs.containsKey(table)) {
+					String loadDDL = loadTableDDLs.get(table);
+					loadDDL = loadDDL.replaceAll("<P>", part);
+					loadDDL = loadDDL.replaceAll("<L>", m_path);
+					stmt = conn.createStatement();
+					System.out.println("LOAD (" + host + "): " + loadDDL);
+					stmt.execute(loadDDL);
+					stmt.close();
+				}
 			}
 
 			reader.close();
@@ -103,7 +105,7 @@ public class InstallLocal {
 
 		Config.DB_NAME = args[0];
 		String path = args[1];
-		
+
 		System.out.println("Schema installation started ...");
 		InstallLocal client = new InstallLocal(path);
 		client.run();
