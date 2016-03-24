@@ -7,7 +7,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -76,11 +75,6 @@ public class QueryCoordinator extends Thread {
 
 	public synchronized void updateCatalog(String table, String partition,
 			Connection conn) {
-		try {
-			System.out.println(table+","+partition+","+conn.getMetaData().getURL());
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
 		PartitionTable partitionTable = m_catalog.get(table);
 
 		if (partitionTable == null) {

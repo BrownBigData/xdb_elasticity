@@ -20,8 +20,6 @@ public class TPCHQuery3 extends DistributedQuery {
 			PartitionTable ordersParts = catalog.get("orders");
 			PartitionTable customerParts = catalog.get("customer");
 
-			System.out.println(catalog.keySet());
-			
 			for (String partition : lineitemParts.partitions()) {
 				boolean update = true;
 				
