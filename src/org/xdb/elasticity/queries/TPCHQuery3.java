@@ -21,7 +21,7 @@ public class TPCHQuery3 extends DistributedQuery {
 			PartitionTable customerParts = catalog.get("customer");
 
 			
-			for (String partition : lineitemParts.partitions()) {
+			for (String partition : oldTable.partitions()) {
 				boolean update = true;
 				
 				String lineitemConn = lineitemParts.getConnection(partition)
@@ -30,6 +30,7 @@ public class TPCHQuery3 extends DistributedQuery {
 						.getMetaData().getURL();
 				String customerConn = customerParts.getConnection(partition)
 						.getMetaData().getURL();
+				System.out.println(partition+":"+lineitemConn+","+ordersConn+","+customerConn);
 
 				if (!lineitemConn.equals(ordersConn)) {
 					update = false;
