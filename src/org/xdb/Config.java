@@ -1,6 +1,7 @@
 package org.xdb;
 
 public class Config {
+	public static final String COPY_FILE = "./conf/copy.conf";
 	public static final String REMOTE_FILE = "./conf/remote.conf";
 	public static final String LOCAL_FILE = "./conf/local.conf";
 	public static final String LOAD_FILE = "./conf/load.conf";

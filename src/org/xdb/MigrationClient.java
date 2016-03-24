@@ -8,25 +8,41 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MigrationClient {
 	public MigrationClient(String host, String coord) {
 		m_coord = coord;
-		m_conn = "jdbc:mysql://"+host+"/" + Config.DB_NAME
+		m_conn = "jdbc:mysql://" + host + "/" + Config.DB_NAME
 				+ "?useSSL=false";
+		m_copyDMLs = new HashMap<String, String>();
+		
 	}
 
 	public void run() {
 		try {
+			// read copy file
+			BufferedReader reader = new BufferedReader(new FileReader(
+					Config.COPY_FILE));
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				String[] catalogEntry = line.split(";");
+				String table = catalogEntry[0];
+				String copyDML = catalogEntry[1];
+				m_copyDMLs.put(table, copyDML);
+			}
+			reader.close();
+
 			// connect to local DB
 			Class.forName(Config.JDBC_DRIVER);
 			Connection conn = DriverManager.getConnection(m_conn,
 					Config.DB_USER, Config.DB_PASSWD);
 
 			// apply migration file
-			BufferedReader reader = new BufferedReader(new FileReader(
+			reader = new BufferedReader(new FileReader(
 					Config.MIGRATE_FILE));
-			String line = null;
+			line = null;
 			while ((line = reader.readLine()) != null) {
 				String[] catalogEntry = line.split(",");
 				String table = catalogEntry[0];
@@ -47,8 +63,7 @@ public class MigrationClient {
 
 	private void notifyCoordinator(String table, String part) {
 		try {
-			Socket sock = new Socket(m_coord,
-					Config.COORDINATOR_PORT);
+			Socket sock = new Socket(m_coord, Config.COORDINATOR_PORT);
 			PrintWriter out = new PrintWriter(sock.getOutputStream(), true);
 
 			String msg = table + "," + part + "," + m_conn;
@@ -66,7 +81,10 @@ public class MigrationClient {
 	}
 
 	private void copyTable(String table, String part, Connection conn) {
-		String copyQuery = COPY_QUERY.replaceAll("<T>", table);
+		if(!m_copyDMLs.containsKey(table))
+			return;
+		
+		String copyQuery = m_copyDMLs.get(table);
 		copyQuery = copyQuery.replaceAll("<P>", part);
 		try {
 			System.out.println("COPY: " + copyQuery);
@@ -82,12 +100,12 @@ public class MigrationClient {
 
 	private String m_coord;
 	private String m_conn;
-
-	private static String COPY_QUERY = "INSERT INTO <T>_<P> SELECT * FROM <T>_<P>_remote";
+	Map<String, String> m_copyDMLs;
 	
 	public static void main(String[] args) {
 		if (args.length != 3) {
-			System.out.println("Usage: MigrationClient <dbname> <hostname> <coord>");
+			System.out
+					.println("Usage: MigrationClient <dbname> <hostname> <coord>");
 			return;
 		}
 

@@ -55,23 +55,25 @@ public class InstallRemote {
 				String table = catalogEntry[0];
 				String part = catalogEntry[1];
 				String host = catalogEntry[2];
-				
-				String remoteDDL = remoteTableDDLs.get(table);
-				remoteDDL = remoteDDL.replaceAll("<P>", part);
-				remoteDDL = remoteDDL.replaceAll("<H>", host);
-				remoteDDL = remoteDDL.replaceAll("<D>", Config.DB_NAME);
-				Statement stmt = conn.createStatement();
-				System.out.println("REMOTE ("+host+"): " + remoteDDL);
-				stmt.execute(remoteDDL);
-				stmt.close();
-				
+
 				String localDDL = localTableDDLs.get(table);
 				localDDL = localDDL.replaceAll("<P>", part);
 				localDDL = localDDL.replaceAll("<D>", Config.DB_NAME);
-				stmt = conn.createStatement();
-				System.out.println("LOCAL ("+m_url+"): " + localDDL);
+				Statement stmt = conn.createStatement();
+				System.out.println("LOCAL (" + m_url + "): " + localDDL);
 				stmt.execute(localDDL);
 				stmt.close();
+
+				if (remoteTableDDLs.containsKey(table)) {
+					String remoteDDL = remoteTableDDLs.get(table);
+					remoteDDL = remoteDDL.replaceAll("<P>", part);
+					remoteDDL = remoteDDL.replaceAll("<H>", host);
+					remoteDDL = remoteDDL.replaceAll("<D>", Config.DB_NAME);
+					stmt = conn.createStatement();
+					System.out.println("REMOTE (" + host + "): " + remoteDDL);
+					stmt.execute(remoteDDL);
+					stmt.close();
+				}
 			}
 			reader.close();
 

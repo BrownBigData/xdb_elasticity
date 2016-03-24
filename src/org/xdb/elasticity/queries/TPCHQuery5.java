@@ -5,10 +5,10 @@ import java.util.Map;
 import org.xdb.elasticity.DistributedQuery;
 import org.xdb.elasticity.PartitionTable;
 
-public class TPCHQuery3 extends DistributedQuery {
+public class TPCHQuery5 extends DistributedQuery {
 
-	public TPCHQuery3() {
-		super(Q3);
+	public TPCHQuery5() {
+		super(Q5);
 	}
 
 	@Override
@@ -19,6 +19,9 @@ public class TPCHQuery3 extends DistributedQuery {
 			PartitionTable lineitemParts = catalog.get("lineitem");
 			PartitionTable ordersParts = catalog.get("orders");
 			PartitionTable customerParts = catalog.get("customer");
+			PartitionTable suppParts = catalog.get("supplier");
+			PartitionTable nationParts = catalog.get("nation");
+			PartitionTable regionParts = catalog.get("region");
 
 			for (String partition : lineitemParts.partitions()) {
 				boolean update = true;
@@ -29,10 +32,22 @@ public class TPCHQuery3 extends DistributedQuery {
 						.getMetaData().getURL();
 				String customerConn = customerParts.getConnection(partition)
 						.getMetaData().getURL();
+				String suppConn = suppParts.getConnection(partition)
+						.getMetaData().getURL();
+				String nationConn = nationParts.getConnection(partition)
+						.getMetaData().getURL();
+				String regionConn = regionParts.getConnection(partition)
+						.getMetaData().getURL();
 				
 				if (!lineitemConn.equals(ordersConn)) {
 					update = false;
 				} else if (!lineitemConn.equals(customerConn)) {
+					update = false;
+				} else if (!lineitemConn.equals(suppConn)) {
+					update = false;
+				} else if (!lineitemConn.equals(nationConn)) {
+					update = false;
+				} else if (!lineitemConn.equals(regionConn)) {
 					update = false;
 				}
 				
@@ -52,14 +67,17 @@ public class TPCHQuery3 extends DistributedQuery {
 		}
 	}
 
-	private static String Q3 = "select l_orderkey, "
-			+ "sum(l_extendedprice*(1-l_discount)) as revenue, "
-			+ "o_orderdate, " + "o_shippriority " + "from "
-			+ "customer_<P>, orders_<P>, lineitem_<P> "
-			+ "where c_mktsegment = 'BUILDING' and "
-			+ "c_custkey = o_custkey and " + "l_orderkey = o_orderkey and "
-			+ "o_orderdate < date '1995-03-15' and "
-			+ "l_shipdate > date '1995-03-15' "
-			+ "group by l_orderkey, o_orderdate, o_shippriority "
-			+ "order by revenue desc, o_orderdate " + "limit 10;";
+	private static String Q5 = "select "
+			+ "n_name, "
+			+ "sum(l_extendedprice * (1-l_discount)) as revenue "
+			+ "from  customer_<P>, orders_<P>, "
+			+ "lineitem_<P>, supplier_<P>, "
+			+ "nation_<P>, region_<P> "
+			+ "where c_custkey = o_custkey "
+			+ "and l_orderkey = o_orderkey " + "and l_suppkey = s_suppkey "
+			+ "and c_nationkey = s_nationkey "
+			+ "and s_nationkey = n_nationkey "
+			+ "and r_regionkey = n_regionkey " + "and r_name = 'ASIA' "
+			+ "and o_orderdate > DATE('1994-01-01')  "
+			+ "and o_orderdate < DATE('1995-01-01') " + "group by n_name;";
 }
