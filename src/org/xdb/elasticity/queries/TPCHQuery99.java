@@ -63,7 +63,6 @@ public class TPCHQuery99 extends DistributedQuery {
 			+ "from  customer_<P>, orders_<P>, "
 			+ "nation_<P>, region_<P> "
 			+ "where c_custkey = o_custkey "
-			+ "and l_orderkey = o_orderkey "
 			+ "and c_nationkey = n_nationkey "
 			+ "and r_regionkey = n_regionkey " 
 			+ "and r_name = 'ASIA' "
